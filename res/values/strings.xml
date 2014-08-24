@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TetherTester</string>
+    <string name="initial_action">Click to start TetherTester</string>
+    <string name="disabling_wifi">Disabling WIFI...</string>
+    <string name="tether_testing">Enabling tethering for up to 30 seconds. Once enabled, use another device to connect using the credentials seen above.</string>
+    <string name="tether_works">Tethering works on this device!</string>
+    <string name="tether_disabled">Tethering was unsuccessful :(</string>
+    <string name="title_activity_name">TetherTester</string>
+    
+</resources>
