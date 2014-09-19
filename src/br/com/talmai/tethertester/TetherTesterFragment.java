@@ -1,8 +1,5 @@
 package br.com.talmai.tethertester;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
@@ -16,16 +13,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TetherTesterFragment extends Fragment {
-	String TAG = "TetherTesterFragment";
-
+	final String TAG = "TetherTesterFragment";
+	static final String STATE_CURRENT = "currentState";
+	
 	private Hotspot hotspot = null;
 	private WifiManager wifiManager = null;
 	
 	private ImageButton btnStart = null;
 	private ImageView animationView = null;
 	private TextView status = null;
-	
-	private Thread executionThread = null;
+	private int lastKnownState = Hotspot.STATUS_NOT_STARTED;
 	
 	public static final int DEVICE_IS_HOTSPOT = 0;
 	public static final int DEVICE_IS_NOT_HOTSPOT = 1;
@@ -34,10 +31,10 @@ public class TetherTesterFragment extends Fragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_main_screen,
-				container, false);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		View rootView = inflater.inflate(R.layout.fragment_main_screen, container, false);
 
 		btnStart = (ImageButton) rootView.findViewById(R.id.startProcessButton);
 		status = (TextView) rootView.findViewById(R.id.status);
@@ -48,6 +45,12 @@ public class TetherTesterFragment extends Fragment {
 		hotspot = new Hotspot();
 		wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
 
+		   
+	    // Check whether we're recreating a previously destroyed instance
+	    if (savedInstanceState != null) {
+	    	lastKnownState = savedInstanceState.getInt(STATE_CURRENT);
+	    }
+	    
 		btnStart.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (hotspot != null) {
@@ -59,7 +62,7 @@ public class TetherTesterFragment extends Fragment {
 					animationDrawable.start();
 					
 					status.setText(R.string.disabling_wifi);
-					hotspot.startProcessConnectionCityEye(wifiManager, TetherTesterFragment.this);
+					hotspot.startProcessConnectionCityEye(wifiManager, TetherTesterFragment.this, lastKnownState);
 
 //					Method[] wmMethods = wifiManager.getClass().getDeclaredMethods();
 //					for(Method method: wmMethods){
@@ -75,6 +78,8 @@ public class TetherTesterFragment extends Fragment {
 	
 	public void updateStatusDisplay(int currentState) {
 		if (hotspot == null) return;
+		
+		lastKnownState = currentState; // save for savedInstanceState
 		
 		if (currentState == Hotspot.STATUS_NOT_STARTED) {
 			//failed
@@ -104,4 +109,11 @@ public class TetherTesterFragment extends Fragment {
 		}
 	}
 
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+	    savedInstanceState.putInt(STATE_CURRENT, lastKnownState);
+	    // save the view hierarchy state
+	    super.onSaveInstanceState(savedInstanceState);
+	}
+	
 }

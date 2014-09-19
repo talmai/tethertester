@@ -37,7 +37,7 @@ public class Hotspot {
     public static int STATUS_AP_DISABLED = 3;
     private int currentTestingStatus = STATUS_NOT_STARTED;
     
-    public void startProcessConnectionCityEye(WifiManager wifihandler, Fragment frg) {
+    public void startProcessConnectionCityEye(WifiManager wifihandler, Fragment frg, int lastKnownTestingStatus) {
     	if (wifiManager==null){
     		wifiManager = wifihandler;
     	}
@@ -46,6 +46,8 @@ public class Hotspot {
         //remember wireless current state
     	stateWifiWasIn = wifiManager.getWifiState();
 
+    	currentTestingStatus = lastKnownTestingStatus; // restart app from previous state
+    	
     	doNextStep();
     }
     
@@ -230,6 +232,8 @@ public class Hotspot {
 			((TetherTesterFragment) fragment).updateStatusDisplay(currentTestingStatus);
 		} 
 		catch (IllegalArgumentException e) {
+		}
+		catch (NullPointerException e) {
 		}
     }
     
